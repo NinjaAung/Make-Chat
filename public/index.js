@@ -5,6 +5,9 @@ $(document).ready(() => {
     //Keep track of the current user
     let currentUser;
 
+    // Get the online users from the server
+    socket.emit('get online users');
+
     $('#create-user-btn').click((e) => {
         e.preventDefault();
         if ($('#username-input').val().length > 0) {
@@ -36,7 +39,7 @@ $(document).ready(() => {
         console.log(`${username} has joined the chat`);
         $('.users-online').append(`<div class="user-online">${username}</div>`);
     })
-    
+
     //Output the new message
     socket.on('new message', (data) => {
         $('.message-container').append(`
@@ -46,5 +49,22 @@ $(document).ready(() => {
       </div>
     `);
     })
+
+    // Get online users
+    socket.on('get online users', (onlineUsers) => {
+        //You may have not have seen this for loop before. It's syntax is for(key in obj)
+        //Our usernames are keys in the object of onlineUsers.
+        for (username in onlineUsers) {
+            $('.users-online').append(`<div class="user-online">${username}</div>`);
+        }
+    })
+
+    //Refresh the online user list
+    socket.on('user has left', (onlineUsers) => {
+        $('.users-online').empty();
+        for (username in onlineUsers) {
+            $('.users-online').append(`<p>${username}</p>`);
+        }
+    });
 
 })
